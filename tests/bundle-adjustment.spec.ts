@@ -35,7 +35,7 @@ test.describe('WASM Bundle Adjustment', () => {
     await expect(page.locator('#status')).toContainText('complete', { timeout: 30000 });
 
     // Check stats are displayed
-    await expect(page.locator('#stats')).toBeVisible();
+    await expect(page.locator('#baStats')).toBeVisible();
     await expect(page.locator('#initialCost')).not.toHaveText('-');
     await expect(page.locator('#finalCost')).not.toHaveText('-');
     await expect(page.locator('#iterations')).not.toHaveText('-');
@@ -117,7 +117,7 @@ test.describe('WASM Bundle Adjustment', () => {
     await expect(page.locator('#status')).toContainText('complete', { timeout: 30000 });
 
     // Verify results
-    await expect(page.locator('#stats')).toBeVisible();
+    await expect(page.locator('#baStats')).toBeVisible();
     const convergedText = await page.locator('#converged').textContent();
     expect(convergedText).toBe('Yes');
   });
