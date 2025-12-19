@@ -163,17 +163,7 @@ npm run serve
 
 ## Technical Details
 
-This module uses a fork of [apex-solver](https://github.com/amin-abouee/apex-solver) modified for WASM compatibility:
-- Levenberg-Marquardt optimization with adaptive damping
-- Sparse Cholesky factorization via [faer](https://github.com/sarah-quinones/faer-rs)
-- SE3 manifold operations for proper rotation handling
-
-The reprojection model minimizes:
-```
-residual = project(R * point_world + t) - observed_2d
-```
-
-With radial-tangential distortion (Brown-Conrady model).
+This module uses a fork of [apex-solver](https://github.com/amin-abouee/apex-solver) modified for WASM compatibility. See [IMPLEMENTATION.md](IMPLEMENTATION.md) for architecture details, the apex-solver fork, and development notes.
 
 ## License
 
