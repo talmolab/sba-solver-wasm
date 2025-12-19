@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>apex-solver-wasm Demo</title>
+    <title>sba-solver-wasm Demo</title>
     <style>
         * {
             box-sizing: border-box;
@@ -141,7 +141,7 @@
     </style>
 </head>
 <body>
-    <h1>apex-solver-wasm Demo</h1>
+    <h1>sba-solver-wasm Demo</h1>
     <p>Browser-based sparse bundle adjustment using WebAssembly</p>
 
     <div id="status" class="loading">Loading WASM module...</div>
@@ -227,7 +227,7 @@
     </div>
 
     <script type="module">
-        import init, { WasmBundleAdjuster } from '../pkg/apex_solver_wasm.js';
+        import init, { WasmBundleAdjuster } from '../pkg/sba_solver_wasm.js';
 
         let ba = null;
 

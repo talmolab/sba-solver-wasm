@@ -26,23 +26,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "apex-solver-wasm"
-version = "0.1.0"
-dependencies = [
- "apex-solver",
- "console_error_panic_hook",
- "getrandom 0.2.16",
- "getrandom 0.3.4",
- "js-sys",
- "nalgebra",
- "serde",
- "serde-wasm-bindgen",
- "serde_json",
- "wasm-bindgen",
- "wasm-bindgen-test",
-]
-
-[[package]]
 name = "approx"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1185,6 +1168,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93fc1dc3aaa9bfed95e02e6eadabb4baf7e3078b0bd1b4d7b6b0b68378900502"
 dependencies = [
  "winapi-util",
+]
+
+[[package]]
+name = "sba-solver-wasm"
+version = "0.1.0"
+dependencies = [
+ "apex-solver",
+ "console_error_panic_hook",
+ "getrandom 0.2.16",
+ "getrandom 0.3.4",
+ "js-sys",
+ "nalgebra",
+ "serde",
+ "serde-wasm-bindgen",
+ "serde_json",
+ "wasm-bindgen",
+ "wasm-bindgen-test",
 ]
 
 [[package]]

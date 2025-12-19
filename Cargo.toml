@@ -1,11 +1,11 @@
 [package]
-name = "apex-solver-wasm"
+name = "sba-solver-wasm"
 version = "0.1.0"
 edition = "2024"
-authors = ["Your Name"]
-description = "WebAssembly module for sparse bundle adjustment using apex-solver"
+authors = ["Talmo Pereira"]
+description = "WebAssembly module for sparse bundle adjustment (camera calibration refinement)"
 license = "Apache-2.0"
-repository = "https://github.com/your-repo/apex-solver-wasm"
+repository = "https://github.com/talmolab/sba-solver-wasm"
 
 [lib]
 crate-type = ["cdylib", "rlib"]

@@ -1,6 +1,6 @@
-# apex-solver-wasm
+# sba-solver-wasm
 
-A WebAssembly module for sparse bundle adjustment, enabling browser-based multicamera calibration using the Rust `apex-solver` crate.
+A WebAssembly module for sparse bundle adjustment, enabling browser-based multicamera calibration refinement. Uses the Rust `apex-solver` crate internally for Levenberg-Marquardt optimization.
 
 ## Quick Start
 
@@ -29,7 +29,7 @@ npm run serve
 ## JavaScript Usage
 
 ```javascript
-import init, { WasmBundleAdjuster } from './pkg/apex_solver_wasm.js';
+import init, { WasmBundleAdjuster } from './pkg/sba_solver_wasm.js';
 
 await init();
 const ba = new WasmBundleAdjuster();
@@ -132,7 +132,7 @@ interface BundleAdjustmentResult {
 ## Project Structure
 
 ```
-apex-solver-wasm/
+sba-solver-wasm/
 ├── Cargo.toml                    # Rust project config
 ├── package.json                  # Node.js config (for Playwright tests)
 ├── playwright.config.ts          # Playwright test configuration
@@ -148,9 +148,9 @@ apex-solver-wasm/
 ├── examples/
 │   └── index.html                # Interactive browser demo
 └── pkg/                          # Built WASM module (generated)
-    ├── apex_solver_wasm.js       # JavaScript bindings
-    ├── apex_solver_wasm.d.ts     # TypeScript types
-    └── apex_solver_wasm_bg.wasm  # WASM binary (~720KB)
+    ├── sba_solver_wasm.js        # JavaScript bindings
+    ├── sba_solver_wasm.d.ts      # TypeScript types
+    └── sba_solver_wasm_bg.wasm   # WASM binary (~720KB)
 ```
 
 ## Development
@@ -225,7 +225,7 @@ python -m http.server 8080
 
 ### apex-solver Integration
 
-This module wraps the [apex-solver](https://github.com/amin-abouee/apex-solver) crate, which provides:
+This module uses a fork of [apex-solver](https://github.com/amin-abouee/apex-solver), which provides:
 - Levenberg-Marquardt optimization with adaptive damping
 - Sparse Cholesky factorization via [faer](https://github.com/sarah-quinones/faer-rs)
 - Manifold operations for SE3 poses (proper rotation handling)
@@ -273,7 +273,7 @@ GitHub Actions workflow (`.github/workflows/test.yml`) runs:
 
 ## References
 
-- [apex-solver GitHub](https://github.com/amin-abouee/apex-solver) - Source repository
+- [apex-solver GitHub](https://github.com/amin-abouee/apex-solver) - Optimization backend
 - [apex-solver docs](https://docs.rs/apex-solver) - API documentation
 - [wasm-bindgen guide](https://rustwasm.github.io/wasm-bindgen/) - WASM bindings
 - [Playwright docs](https://playwright.dev/) - Browser testing

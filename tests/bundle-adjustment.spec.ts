@@ -166,7 +166,7 @@ test.describe('WASM Module API', () => {
     // Test the API directly via page.evaluate
     const result = await page.evaluate(async () => {
       // @ts-ignore - module is loaded globally
-      const { WasmBundleAdjuster } = await import('/pkg/apex_solver_wasm.js');
+      const { WasmBundleAdjuster } = await import('/pkg/sba_solver_wasm.js');
 
       const ba = new WasmBundleAdjuster();
 
@@ -213,7 +213,7 @@ test.describe('WASM Module API', () => {
 
     const result = await page.evaluate(async () => {
       // @ts-ignore
-      const { WasmBundleAdjuster } = await import('/pkg/apex_solver_wasm.js');
+      const { WasmBundleAdjuster } = await import('/pkg/sba_solver_wasm.js');
 
       const ba = new WasmBundleAdjuster();
 

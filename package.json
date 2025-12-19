@@ -1,7 +1,7 @@
 {
-  "name": "apex-solver-wasm",
+  "name": "sba-solver-wasm",
   "version": "0.1.0",
-  "description": "WebAssembly module for sparse bundle adjustment",
+  "description": "WebAssembly module for sparse bundle adjustment (camera calibration refinement)",
   "type": "module",
   "scripts": {
     "build": "wasm-pack build --target web --release",
