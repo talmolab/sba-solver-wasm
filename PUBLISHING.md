@@ -77,9 +77,41 @@ cd pkg && npm publish --access public --auth-type=web && cd ..
 ## Troubleshooting
 
 ### OIDC Authentication Fails
+
+**Most common cause: npm version too old**
+
+Trusted publishing requires npm CLI v11.5.1 or later. GitHub Actions runners often have older versions. The workflow includes an update step:
+
+```yaml
+- name: Update npm for trusted publishing
+  run: npm install -g npm@latest && npm --version
+```
+
+**Other checks:**
 - Verify the workflow filename matches exactly (case-sensitive, including `.yml`)
 - Ensure you're using GitHub-hosted runners (self-hosted not supported)
-- Check that npm CLI is v11.5.1 or later
+- If using an environment in npm config, it must match the workflow's `environment:` field exactly
+- Leave the environment field blank on both sides unless you have a specific reason
+
+### 404 "Not Found" During Publish
+
+This usually means OIDC token mismatch, not that the package doesn't exist. Check:
+1. npm trusted publisher config matches repo exactly (`talmolab/sba-solver-wasm`)
+2. Workflow filename matches (`release.yml`)
+3. Environment field matches (should be blank)
+4. npm version is 11.5.1+
+
+### Release Tag Points to Old Commit
+
+When recreating releases, the remote tag may persist. Delete both:
+
+```bash
+gh release delete vX.Y.Z --yes
+git push origin --delete vX.Y.Z
+git tag -d vX.Y.Z
+```
+
+Then create the new release, which will tag the current HEAD.
 
 ### Package Name Conflicts
 The package is scoped to `@talmolab`, so there should be no conflicts. The scope is set via `--scope talmolab` in the build scripts.
