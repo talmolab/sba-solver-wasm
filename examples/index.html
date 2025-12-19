@@ -437,6 +437,9 @@ const undistorted = await undistortPoints([[320, 240], [400, 300]], camera);</di
                 ba.set_observations(JSON.stringify(observations));
                 ba.set_config(JSON.stringify({
                     max_iterations: parseInt(document.getElementById('maxIterations').value),
+                    cost_tolerance: 1e-6,
+                    parameter_tolerance: 1e-8,
+                    gradient_tolerance: 1e-10,
                     robust_loss: document.getElementById('robustLoss').value,
                     robust_loss_param: 1.0,
                     optimize_extrinsics: true,

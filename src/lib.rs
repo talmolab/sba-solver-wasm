@@ -1716,19 +1716,43 @@ mod tests {
         let (u1, v1) = cameras[1].project(&true_point).unwrap();
 
         let observations = vec![
-            TriangulationObservation { camera_idx: 0, x: u0, y: v0 },
-            TriangulationObservation { camera_idx: 1, x: u1, y: v1 },
+            TriangulationObservation {
+                camera_idx: 0,
+                x: u0,
+                y: v0,
+            },
+            TriangulationObservation {
+                camera_idx: 1,
+                x: u1,
+                y: v1,
+            },
         ];
 
         let result = triangulate_point_dlt(&observations, &cameras).unwrap();
 
         // Check triangulated point is close to true point
-        assert!((result.point[0] - 0.5).abs() < 0.01, "X mismatch: {}", result.point[0]);
-        assert!((result.point[1] - 0.0).abs() < 0.01, "Y mismatch: {}", result.point[1]);
-        assert!((result.point[2] - 5.0).abs() < 0.01, "Z mismatch: {}", result.point[2]);
+        assert!(
+            (result.point[0] - 0.5).abs() < 0.01,
+            "X mismatch: {}",
+            result.point[0]
+        );
+        assert!(
+            (result.point[1] - 0.0).abs() < 0.01,
+            "Y mismatch: {}",
+            result.point[1]
+        );
+        assert!(
+            (result.point[2] - 5.0).abs() < 0.01,
+            "Z mismatch: {}",
+            result.point[2]
+        );
 
         // Reprojection error should be very small
-        assert!(result.reprojection_error < 0.1, "Error too large: {}", result.reprojection_error);
+        assert!(
+            result.reprojection_error < 0.1,
+            "Error too large: {}",
+            result.reprojection_error
+        );
     }
 
     #[test]
@@ -1737,9 +1761,11 @@ mod tests {
         let cameras = vec![cam];
 
         // Only one observation - should fail
-        let observations = vec![
-            TriangulationObservation { camera_idx: 0, x: 320.0, y: 240.0 },
-        ];
+        let observations = vec![TriangulationObservation {
+            camera_idx: 0,
+            x: 320.0,
+            y: 240.0,
+        }];
 
         let result = triangulate_point_dlt(&observations, &cameras);
         assert!(result.is_none());
@@ -1834,10 +1860,18 @@ mod tests {
         let u_undist_expected = cam.focal[0] * x_undist + cam.principal[0];
         let v_undist_expected = cam.focal[1] * y_undist + cam.principal[1];
 
-        assert!((result[0][0] - u_undist_expected).abs() < 0.01,
-            "U mismatch: {} vs {}", result[0][0], u_undist_expected);
-        assert!((result[0][1] - v_undist_expected).abs() < 0.01,
-            "V mismatch: {} vs {}", result[0][1], v_undist_expected);
+        assert!(
+            (result[0][0] - u_undist_expected).abs() < 0.01,
+            "U mismatch: {} vs {}",
+            result[0][0],
+            u_undist_expected
+        );
+        assert!(
+            (result[0][1] - v_undist_expected).abs() < 0.01,
+            "V mismatch: {} vs {}",
+            result[0][1],
+            v_undist_expected
+        );
     }
 
     #[test]
@@ -1882,12 +1916,28 @@ mod tests {
 
         let point_observations = vec![
             vec![
-                TriangulationObservation { camera_idx: 0, x: u10, y: v10 },
-                TriangulationObservation { camera_idx: 1, x: u11, y: v11 },
+                TriangulationObservation {
+                    camera_idx: 0,
+                    x: u10,
+                    y: v10,
+                },
+                TriangulationObservation {
+                    camera_idx: 1,
+                    x: u11,
+                    y: v11,
+                },
             ],
             vec![
-                TriangulationObservation { camera_idx: 0, x: u20, y: v20 },
-                TriangulationObservation { camera_idx: 1, x: u21, y: v21 },
+                TriangulationObservation {
+                    camera_idx: 0,
+                    x: u20,
+                    y: v20,
+                },
+                TriangulationObservation {
+                    camera_idx: 1,
+                    x: u21,
+                    y: v21,
+                },
             ],
         ];
 
@@ -1925,7 +1975,8 @@ mod tests {
         let points_json = serde_json::to_string(&points).unwrap();
         let obs_json = serde_json::to_string(&observations).unwrap();
 
-        let result_json = compute_reprojection_errors(&cameras_json, &points_json, &obs_json).unwrap();
+        let result_json =
+            compute_reprojection_errors(&cameras_json, &points_json, &obs_json).unwrap();
         let result: ReprojectionErrorResult = serde_json::from_str(&result_json).unwrap();
 
         assert_eq!(result.errors.len(), 1);
