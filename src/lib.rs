@@ -123,8 +123,10 @@ impl CameraParams {
         let d = 1.0 + k1 * r2 + k2 * r4 + k3 * r6;
 
         // Apply distortion
-        let x_distorted = d * x_prime + 2.0 * p1 * x_prime * y_prime + p2 * (r2 + 2.0 * x_prime * x_prime);
-        let y_distorted = d * y_prime + 2.0 * p2 * x_prime * y_prime + p1 * (r2 + 2.0 * y_prime * y_prime);
+        let x_distorted =
+            d * x_prime + 2.0 * p1 * x_prime * y_prime + p2 * (r2 + 2.0 * x_prime * x_prime);
+        let y_distorted =
+            d * y_prime + 2.0 * p2 * x_prime * y_prime + p1 * (r2 + 2.0 * y_prime * y_prime);
 
         // Project to pixel coordinates
         let u = fx * x_distorted + cx;
@@ -135,7 +137,11 @@ impl CameraParams {
 
     /// Compute reprojection error for a 3D point and observed 2D point.
     /// Returns the Euclidean distance in pixels, or None if the point is behind the camera.
-    pub fn reprojection_error(&self, point_world: &Vector3<f64>, observed: (f64, f64)) -> Option<f64> {
+    pub fn reprojection_error(
+        &self,
+        point_world: &Vector3<f64>,
+        observed: (f64, f64),
+    ) -> Option<f64> {
         let (u, v) = self.project(point_world)?;
         let dx = u - observed.0;
         let dy = v - observed.1;
@@ -203,8 +209,8 @@ impl Default for SolverConfig {
             optimize_extrinsics: true,
             optimize_points: true,
             optimize_intrinsics: false,
-            outlier_threshold: 0.0, // disabled by default
-            reference_camera: 0,    // first camera is reference by default
+            outlier_threshold: 0.0,    // disabled by default
+            reference_camera: 0,       // first camera is reference by default
             ignore_frames: Vec::new(), // no frames ignored by default
         }
     }
@@ -249,7 +255,12 @@ struct CostHistoryObserver {
 impl CostHistoryObserver {
     fn new() -> (Self, Arc<Mutex<Vec<f64>>>) {
         let costs = Arc::new(Mutex::new(Vec::new()));
-        (Self { costs: costs.clone() }, costs)
+        (
+            Self {
+                costs: costs.clone(),
+            },
+            costs,
+        )
     }
 }
 
@@ -337,8 +348,10 @@ impl ReprojectionFactor {
         let d = 1.0 + k1 * r2 + k2 * r4 + k3 * r6;
 
         // Apply distortion
-        let x_distorted = d * x_prime + 2.0 * p1 * x_prime * y_prime + p2 * (r2 + 2.0 * x_prime * x_prime);
-        let y_distorted = d * y_prime + 2.0 * p2 * x_prime * y_prime + p1 * (r2 + 2.0 * y_prime * y_prime);
+        let x_distorted =
+            d * x_prime + 2.0 * p1 * x_prime * y_prime + p2 * (r2 + 2.0 * x_prime * x_prime);
+        let y_distorted =
+            d * y_prime + 2.0 * p2 * x_prime * y_prime + p1 * (r2 + 2.0 * y_prime * y_prime);
 
         // Project to pixel coordinates
         let u = fx * x_distorted + cx;
@@ -385,10 +398,18 @@ impl ReprojectionFactor {
         let dr2_dy_prime = 2.0 * y_prime;
 
         // Derivatives of distorted coords w.r.t. normalized coords
-        let dx_dist_dx_prime = d + x_prime * d_d_r2 * dr2_dx_prime + 2.0 * p1 * y_prime + p2 * (dr2_dx_prime + 4.0 * x_prime);
-        let dx_dist_dy_prime = x_prime * d_d_r2 * dr2_dy_prime + 2.0 * p1 * x_prime + p2 * dr2_dy_prime;
-        let dy_dist_dx_prime = y_prime * d_d_r2 * dr2_dx_prime + 2.0 * p2 * y_prime + p1 * dr2_dx_prime;
-        let dy_dist_dy_prime = d + y_prime * d_d_r2 * dr2_dy_prime + 2.0 * p2 * x_prime + p1 * (dr2_dy_prime + 4.0 * y_prime);
+        let dx_dist_dx_prime = d
+            + x_prime * d_d_r2 * dr2_dx_prime
+            + 2.0 * p1 * y_prime
+            + p2 * (dr2_dx_prime + 4.0 * x_prime);
+        let dx_dist_dy_prime =
+            x_prime * d_d_r2 * dr2_dy_prime + 2.0 * p1 * x_prime + p2 * dr2_dy_prime;
+        let dy_dist_dx_prime =
+            y_prime * d_d_r2 * dr2_dx_prime + 2.0 * p2 * y_prime + p1 * dr2_dx_prime;
+        let dy_dist_dy_prime = d
+            + y_prime * d_d_r2 * dr2_dy_prime
+            + 2.0 * p2 * x_prime
+            + p1 * (dr2_dy_prime + 4.0 * y_prime);
 
         // Chain rule: d(u,v)/d(x,y,z)
         let mut jac = DMatrix::zeros(2, 3);
@@ -424,9 +445,8 @@ impl Factor for ReprojectionFactor {
 
         // Extract pose components
         let t = Vector3::new(pose[0], pose[1], pose[2]);
-        let q = UnitQuaternion::from_quaternion(Quaternion::new(
-            pose[3], pose[4], pose[5], pose[6],
-        ));
+        let q =
+            UnitQuaternion::from_quaternion(Quaternion::new(pose[3], pose[4], pose[5], pose[6]));
 
         // Extract 3D point
         let point_world = Vector3::new(point[0], point[1], point[2]);
@@ -438,10 +458,7 @@ impl Factor for ReprojectionFactor {
         match self.project(&point_cam) {
             Some((u, v)) => {
                 // Compute residual
-                let residual = DVector::from_vec(vec![
-                    u - self.observed[0],
-                    v - self.observed[1],
-                ]);
+                let residual = DVector::from_vec(vec![u - self.observed[0], v - self.observed[1]]);
 
                 let jacobian = if compute_jacobian {
                     // Compute Jacobian
@@ -484,9 +501,15 @@ impl Factor for ReprojectionFactor {
                             // Rotation part: d_proj/d_point_cam * d_point_cam/d_omega
                             // d_point_cam/d_omega = -skew(point_cam)
                             let skew = Matrix3::new(
-                                0.0, -point_cam[2], point_cam[1],
-                                point_cam[2], 0.0, -point_cam[0],
-                                -point_cam[1], point_cam[0], 0.0,
+                                0.0,
+                                -point_cam[2],
+                                point_cam[1],
+                                point_cam[2],
+                                0.0,
+                                -point_cam[0],
+                                -point_cam[1],
+                                point_cam[0],
+                                0.0,
                             );
                             let d_point_cam_d_omega = -skew;
                             let jac_rotation = &d_proj * d_point_cam_d_omega;
@@ -588,8 +611,10 @@ impl ReprojectionFactorWithIntrinsics {
         let r6 = r4 * r2;
         let d = 1.0 + k1 * r2 + k2 * r4 + k3 * r6;
 
-        let x_distorted = d * x_prime + 2.0 * p1 * x_prime * y_prime + p2 * (r2 + 2.0 * x_prime * x_prime);
-        let y_distorted = d * y_prime + 2.0 * p2 * x_prime * y_prime + p1 * (r2 + 2.0 * y_prime * y_prime);
+        let x_distorted =
+            d * x_prime + 2.0 * p1 * x_prime * y_prime + p2 * (r2 + 2.0 * x_prime * x_prime);
+        let y_distorted =
+            d * y_prime + 2.0 * p2 * x_prime * y_prime + p1 * (r2 + 2.0 * y_prime * y_prime);
 
         let u = fx * x_distorted + cx;
         let v = fy * y_distorted + cy;
@@ -629,8 +654,10 @@ impl ReprojectionFactorWithIntrinsics {
         let d_d_r2 = k1 + 2.0 * k2 * r2 + 3.0 * k3 * r4;
 
         // Distorted coordinates
-        let x_distorted = d * x_prime + 2.0 * p1 * x_prime * y_prime + p2 * (r2 + 2.0 * x_prime * x_prime);
-        let y_distorted = d * y_prime + 2.0 * p2 * x_prime * y_prime + p1 * (r2 + 2.0 * y_prime * y_prime);
+        let x_distorted =
+            d * x_prime + 2.0 * p1 * x_prime * y_prime + p2 * (r2 + 2.0 * x_prime * x_prime);
+        let y_distorted =
+            d * y_prime + 2.0 * p2 * x_prime * y_prime + p1 * (r2 + 2.0 * y_prime * y_prime);
 
         // Derivatives of normalized coords w.r.t. 3D point
         let dx_prime_dx = 1.0 / z;
@@ -643,10 +670,18 @@ impl ReprojectionFactorWithIntrinsics {
         let dr2_dy_prime = 2.0 * y_prime;
 
         // Derivatives of distorted coords w.r.t. normalized coords
-        let dx_dist_dx_prime = d + x_prime * d_d_r2 * dr2_dx_prime + 2.0 * p1 * y_prime + p2 * (dr2_dx_prime + 4.0 * x_prime);
-        let dx_dist_dy_prime = x_prime * d_d_r2 * dr2_dy_prime + 2.0 * p1 * x_prime + p2 * dr2_dy_prime;
-        let dy_dist_dx_prime = y_prime * d_d_r2 * dr2_dx_prime + 2.0 * p2 * y_prime + p1 * dr2_dx_prime;
-        let dy_dist_dy_prime = d + y_prime * d_d_r2 * dr2_dy_prime + 2.0 * p2 * x_prime + p1 * (dr2_dy_prime + 4.0 * y_prime);
+        let dx_dist_dx_prime = d
+            + x_prime * d_d_r2 * dr2_dx_prime
+            + 2.0 * p1 * y_prime
+            + p2 * (dr2_dx_prime + 4.0 * x_prime);
+        let dx_dist_dy_prime =
+            x_prime * d_d_r2 * dr2_dy_prime + 2.0 * p1 * x_prime + p2 * dr2_dy_prime;
+        let dy_dist_dx_prime =
+            y_prime * d_d_r2 * dr2_dx_prime + 2.0 * p2 * y_prime + p1 * dr2_dx_prime;
+        let dy_dist_dy_prime = d
+            + y_prime * d_d_r2 * dr2_dy_prime
+            + 2.0 * p2 * x_prime
+            + p1 * (dr2_dy_prime + 4.0 * y_prime);
 
         // Jacobian w.r.t. point in camera coordinates (2x3)
         let mut jac_point = DMatrix::zeros(2, 3);
@@ -717,19 +752,15 @@ impl Factor for ReprojectionFactorWithIntrinsics {
         let intrinsics = &params[2];
 
         let t = Vector3::new(pose[0], pose[1], pose[2]);
-        let q = UnitQuaternion::from_quaternion(Quaternion::new(
-            pose[3], pose[4], pose[5], pose[6],
-        ));
+        let q =
+            UnitQuaternion::from_quaternion(Quaternion::new(pose[3], pose[4], pose[5], pose[6]));
 
         let point_world = Vector3::new(point[0], point[1], point[2]);
         let point_cam = q * point_world + t;
 
         match Self::project(&point_cam, intrinsics) {
             Some((u, v)) => {
-                let residual = DVector::from_vec(vec![
-                    u - self.observed[0],
-                    v - self.observed[1],
-                ]);
+                let residual = DVector::from_vec(vec![u - self.observed[0], v - self.observed[1]]);
 
                 let jacobian = if compute_jacobian {
                     match Self::projection_jacobians(&point_cam, intrinsics) {
@@ -752,9 +783,15 @@ impl Factor for ReprojectionFactorWithIntrinsics {
 
                             // Rotation part
                             let skew = Matrix3::new(
-                                0.0, -point_cam[2], point_cam[1],
-                                point_cam[2], 0.0, -point_cam[0],
-                                -point_cam[1], point_cam[0], 0.0,
+                                0.0,
+                                -point_cam[2],
+                                point_cam[1],
+                                point_cam[2],
+                                0.0,
+                                -point_cam[0],
+                                -point_cam[1],
+                                point_cam[0],
+                                0.0,
                             );
                             let d_point_cam_d_omega = -skew;
                             let jac_rotation = &d_proj_d_point_cam * d_point_cam_d_omega;
@@ -937,10 +974,12 @@ impl WasmBundleAdjuster {
 
         // Add reprojection factors for each observation (with optional filtering)
         let outlier_filtering_enabled = self.config.outlier_threshold > 0.0;
-        let frame_filtering_enabled = !self.config.ignore_frames.is_empty() && !self.point_to_frame.is_empty();
+        let frame_filtering_enabled =
+            !self.config.ignore_frames.is_empty() && !self.point_to_frame.is_empty();
 
         // Build a HashSet of ignored frames for O(1) lookup
-        let ignored_frames: std::collections::HashSet<usize> = self.config.ignore_frames.iter().cloned().collect();
+        let ignored_frames: std::collections::HashSet<usize> =
+            self.config.ignore_frames.iter().cloned().collect();
 
         let mut num_observations_used = 0usize;
         let mut num_observations_filtered = 0usize;
@@ -978,12 +1017,16 @@ impl WasmBundleAdjuster {
             // Create robust loss function
             let loss: Option<Box<dyn apex_solver::core::loss_functions::LossFunction + Send>> =
                 match self.config.robust_loss.as_str() {
-                    "huber" => HuberLoss::new(self.config.robust_loss_param)
-                        .ok()
-                        .map(|l| Box::new(l) as Box<dyn apex_solver::core::loss_functions::LossFunction + Send>),
+                    "huber" => HuberLoss::new(self.config.robust_loss_param).ok().map(|l| {
+                        Box::new(l)
+                            as Box<dyn apex_solver::core::loss_functions::LossFunction + Send>
+                    }),
                     "cauchy" => CauchyLoss::new(self.config.robust_loss_param)
                         .ok()
-                        .map(|l| Box::new(l) as Box<dyn apex_solver::core::loss_functions::LossFunction + Send>),
+                        .map(|l| {
+                            Box::new(l)
+                                as Box<dyn apex_solver::core::loss_functions::LossFunction + Send>
+                        }),
                     _ => None,
                 };
 
@@ -1002,7 +1045,10 @@ impl WasmBundleAdjuster {
         }
 
         // Fix reference camera pose to anchor the coordinate system (gauge freedom)
-        let ref_cam = self.config.reference_camera.min(self.cameras.len().saturating_sub(1));
+        let ref_cam = self
+            .config
+            .reference_camera
+            .min(self.cameras.len().saturating_sub(1));
         if !self.config.optimize_extrinsics {
             // Fix all cameras
             for i in 0..self.cameras.len() {
@@ -1037,7 +1083,8 @@ impl WasmBundleAdjuster {
         let (cost_observer, cost_history) = CostHistoryObserver::new();
         let mut solver = LevenbergMarquardt::with_config(lm_config);
         solver.add_observer(cost_observer);
-        let result = solver.optimize(&problem, &initial_values)
+        let result = solver
+            .optimize(&problem, &initial_values)
             .map_err(|e| JsValue::from_str(&format!("Optimization failed: {:?}", e)))?;
 
         // Extract optimized cameras (extrinsics and optionally intrinsics)
